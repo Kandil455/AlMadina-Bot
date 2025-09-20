@@ -1,0 +1,20 @@
+# Byte-compiled / cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Local data & persistence
+data/medical_glossary_cache.json
+bot_persistence*
+
+# Envs & tokens
+.env
+*.env
+
+# Build artifacts
+*.pdf
+*.mp3
+*.wav
+
