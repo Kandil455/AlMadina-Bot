@@ -1,0 +1,17 @@
+// Example buildConfig values for AlMadina Android App
+// Copy this template and update with your actual API endpoint
+
+android {
+    defaultConfig {
+        // API Configuration
+        buildConfigField("String", "API_BASE_URL", "\"http://api.almadina.local\"")
+        buildConfigField("String", "DEFAULT_AI_MODEL", "\"gemini-2.0-flash\"")
+
+        // Timeouts (in milliseconds)
+        buildConfigField("long", "API_TIMEOUT_MS", "60000L")
+
+        // Feature flags
+        buildConfigField("boolean", "ENABLE_OFFLINE_MODE", "true")
+        buildConfigField("boolean", "ENABLE_CACHING", "true")
+    }
+}
