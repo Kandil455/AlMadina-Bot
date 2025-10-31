@@ -63,9 +63,11 @@ class MainActivity : ComponentActivity() {
                         UploadScreen(
                             operationType = operationType,
                             onBackClick = { navController.popBackStack() },
-                            onUpload = { content, documentType ->
+                            onUpload = { content, _ ->
                                 // Start processing
-                                navController.navigate(Screen.Processing.createRoute(operationType))
+                                navController.navigate(Screen.Processing.createRoute(operationType)) {
+                                    launchSingleTop = true
+                                }
 
                                 // Process document
                                 when (operationType) {
@@ -81,11 +83,6 @@ class MainActivity : ComponentActivity() {
                                             documentType = com.almadina.app.data.remote.model.DocumentType.TEXT
                                         )
                                     }
-                                }
-
-                                // Navigate to results after completion
-                                documentViewModel.uiState.value.currentResult?.let {
-                                    navController.navigate(Screen.Results.createRoute(it.id))
                                 }
                             }
                         )
