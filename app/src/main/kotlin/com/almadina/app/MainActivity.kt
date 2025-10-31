@@ -1,6 +1,10 @@
 package com.almadina.app
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,6 +22,7 @@ import com.almadina.app.presentation.ui.screens.UploadScreen
 import com.almadina.app.presentation.ui.theme.AlMadinaTheme
 import com.almadina.app.presentation.viewmodel.DocumentViewModel
 import com.almadina.app.presentation.viewmodel.SettingsViewModel
+import com.almadina.app.utils.PdfGenerator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
