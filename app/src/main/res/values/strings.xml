@@ -26,10 +26,12 @@
     <string name="timeout_error">Request took too long. Please try again.</string>
 
     <!-- Results Screen -->
+    <string name="results_title">Results</string>
     <string name="download_pdf">Download PDF</string>
     <string name="copy_text">Copy</string>
     <string name="share">Share</string>
     <string name="back">Back</string>
+    <string name="no_results">No results available</string>
 
     <!-- Summarize Feature -->
     <string name="summarize_style">Summarization Style</string>
