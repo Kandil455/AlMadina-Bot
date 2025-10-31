@@ -18,3 +18,11 @@ bot_persistence*
 *.mp3
 *.wav
 
+# Android-specific
+.gradle/
+app/build/
+.idea/
+*.iml
+*.apk
+*.jks
+local.properties
