@@ -122,16 +122,50 @@ class MainActivity : ComponentActivity() {
                             result = result,
                             onBackClick = { navController.popBackStack() },
                             onDownloadPdf = {
-                                result?.let {
-                                    // TODO: Implement PDF download
+                                result?.let { r ->
+                                    val pdfGenerator = PdfGenerator(this@MainActivity)
+                                    val pdfResult = pdfGenerator.generatePdfFromHtml(r.result)
+                                    pdfResult.onSuccess {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            getString(R.string.pdf_downloaded),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }.onFailure {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            getString(R.string.pdf_generation_failed),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             },
                             onShare = {
-                                // TODO: Implement share functionality
+                                result?.let { r ->
+                                    val sendIntent = android.content.Intent().apply {
+                                        action = android.content.Intent.ACTION_SEND
+                                        putExtra(android.content.Intent.EXTRA_TEXT, r.result)
+                                        type = "text/plain"
+                                    }
+                                    val shareIntent = android.content.Intent.createChooser(
+                                        sendIntent,
+                                        "Share Result"
+                                    )
+                                    startActivity(shareIntent)
+                                }
                             },
                             onCopyText = {
-                                result?.let {
-                                    // TODO: Copy to clipboard
+                                result?.let { r ->
+                                    val clipboard =
+                                        getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    val clip =
+                                        ClipData.newPlainText("Summarized Content", r.result)
+                                    clipboard.setPrimaryClip(clip)
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        getString(R.string.text_copied),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         )
