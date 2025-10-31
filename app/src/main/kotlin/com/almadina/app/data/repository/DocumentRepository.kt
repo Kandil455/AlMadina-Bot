@@ -9,6 +9,7 @@ import com.almadina.app.data.remote.model.ExplainRequest
 import com.almadina.app.data.remote.model.ProcessingResult
 import com.almadina.app.data.remote.model.SummarizeRequest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 class DocumentRepository(
@@ -21,40 +22,39 @@ class DocumentRepository(
         documentType: DocumentType,
         style: String? = null
     ): Result<ProcessingResult> = try {
-        val model = preferences.aiModel.map { it }.collect { model ->
-            val request = SummarizeRequest(
-                documentType = documentType.toString().lowercase(),
-                content = content,
-                model = model,
-                style = style
+        val model = preferences.aiModel.firstOrNull() ?: "gemini-2.0-flash"
+
+        val request = SummarizeRequest(
+            documentType = documentType.toString().lowercase(),
+            content = content,
+            model = model,
+            style = style
+        )
+        val response = apiService.summarizeDocument(request)
+
+        if (response.status == "success") {
+            val result = ProcessingResult(
+                documentContent = content.take(100),
+                operationType = "summarize",
+                result = response.result,
+                createdAt = System.currentTimeMillis(),
+                processingTimeMs = response.processingTimeMs
             )
-            val response = apiService.summarizeDocument(request)
 
-            if (response.status == "success") {
-                val result = ProcessingResult(
-                    documentContent = content.take(100), // Store first 100 chars for reference
-                    operationType = "summarize",
-                    result = response.result,
-                    createdAt = System.currentTimeMillis(),
-                    processingTimeMs = response.processingTimeMs
-                )
+            // Save to local database
+            val entity = ProcessingHistoryEntity(
+                documentContent = result.documentContent,
+                operationType = result.operationType,
+                result = result.result,
+                createdAt = result.createdAt,
+                processingTimeMs = result.processingTimeMs
+            )
+            val id = database.processingHistoryDao().insertHistory(entity)
 
-                // Save to local database
-                val entity = ProcessingHistoryEntity(
-                    documentContent = result.documentContent,
-                    operationType = result.operationType,
-                    result = result.result,
-                    createdAt = result.createdAt,
-                    processingTimeMs = result.processingTimeMs
-                )
-                val id = database.processingHistoryDao().insertHistory(entity)
-
-                Result.success(result.copy(id = id))
-            } else {
-                Result.failure(Exception(response.error ?: "Unknown error"))
-            }
+            Result.success(result.copy(id = id))
+        } else {
+            Result.failure(Exception(response.error ?: "Unknown error"))
         }
-        model
     } catch (e: Exception) {
         Result.failure(e)
     }
@@ -65,42 +65,41 @@ class DocumentRepository(
         persona: String? = null,
         language: String? = null
     ): Result<ProcessingResult> = try {
-        val currentLanguage = language ?: preferences.languagePreference.map { it }.collect { it }
-        val model = preferences.aiModel.map { it }.collect { model ->
-            val request = ExplainRequest(
-                documentType = documentType.toString().lowercase(),
-                content = content,
-                model = model,
-                persona = persona,
-                language = currentLanguage
+        val model = preferences.aiModel.firstOrNull() ?: "gemini-2.0-flash"
+        val currentLanguage = language ?: (preferences.languagePreference.firstOrNull() ?: "en")
+
+        val request = ExplainRequest(
+            documentType = documentType.toString().lowercase(),
+            content = content,
+            model = model,
+            persona = persona,
+            language = currentLanguage
+        )
+        val response = apiService.explainContent(request)
+
+        if (response.status == "success") {
+            val result = ProcessingResult(
+                documentContent = content.take(100),
+                operationType = "explain",
+                result = response.result,
+                createdAt = System.currentTimeMillis(),
+                processingTimeMs = response.processingTimeMs
             )
-            val response = apiService.explainContent(request)
 
-            if (response.status == "success") {
-                val result = ProcessingResult(
-                    documentContent = content.take(100),
-                    operationType = "explain",
-                    result = response.result,
-                    createdAt = System.currentTimeMillis(),
-                    processingTimeMs = response.processingTimeMs
-                )
+            // Save to local database
+            val entity = ProcessingHistoryEntity(
+                documentContent = result.documentContent,
+                operationType = result.operationType,
+                result = result.result,
+                createdAt = result.createdAt,
+                processingTimeMs = result.processingTimeMs
+            )
+            val id = database.processingHistoryDao().insertHistory(entity)
 
-                // Save to local database
-                val entity = ProcessingHistoryEntity(
-                    documentContent = result.documentContent,
-                    operationType = result.operationType,
-                    result = result.result,
-                    createdAt = result.createdAt,
-                    processingTimeMs = result.processingTimeMs
-                )
-                val id = database.processingHistoryDao().insertHistory(entity)
-
-                Result.success(result.copy(id = id))
-            } else {
-                Result.failure(Exception(response.error ?: "Unknown error"))
-            }
+            Result.success(result.copy(id = id))
+        } else {
+            Result.failure(Exception(response.error ?: "Unknown error"))
         }
-        model
     } catch (e: Exception) {
         Result.failure(e)
     }
