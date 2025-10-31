@@ -31,12 +31,13 @@ fun FeatureCard(
     gradientStart: Color,
     gradientEnd: Color,
     enabled: Boolean = true,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     val isPressed = remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(140.dp)
             .shadow(
                 elevation = 8.dp,
